@@ -20,25 +20,24 @@ const userSchema = new mongoose.Schema({
         ],
         index: true,
     },
-
     password: {
         type: String,
         required: [true, "Password is required"],
         minlength: [6, "Password must be at least 6 characters"],
         select: false,
     },
-    // verifyCode: {
-    //     type: String,
-    //     required: [true, "VerifyCode is required"],
-    // },
-    // verifyCodeExpiry: {
-    //     type: Date,
-    //     required: [true, "Verify code Expiry is required"],
-    // },
-    // isVerified: {
-    //     type: Boolean,
-    //     default: false
-    // },
+    verifyCode: {
+        type: String,
+        default:null,
+    },
+    verifyCodeExpiry: {
+        type: Date,
+        default:null,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
 });
 
 module.exports = mongoose.model("User", userSchema);
