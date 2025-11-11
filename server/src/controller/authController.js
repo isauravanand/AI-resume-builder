@@ -1,8 +1,12 @@
 const userModel = require("../models/users");
-const {signupValidation} = require("../validations/signupValidation")
-const {loginValidation} = require("../validations/loginuserValidation")
+const { signupValidation } = require("../validations/signupValidation")
+const { loginValidation } = require("../validations/loginuserValidation")
+const { verifySchema } = require("../validations/validate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendVerificationEmail = require("../utils/sendEmail");
+
+
 
 //Register Route
 async function registerUser(req, res) {
@@ -37,12 +41,28 @@ async function registerUser(req, res) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        //User Email Verification Expiry Time 
+        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verifyCodeExpiry = Date.now() + 10 * 60 * 1000;
+
         // Save user to DB
         const user = await userModel.create({
             fullname,
             email,
             password: hashedPassword,
+            verifyCode,
+            verifyCodeExpiry,
+            isVerified: false,
         });
+
+        const emailSent = await sendVerificationEmail(email, verifyCode);
+
+        if (!emailSent) {
+            return res.status(500).json({
+                success: false,
+                message: "User registered but failed to send verification email.",
+            });
+        }
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
@@ -57,6 +77,13 @@ async function registerUser(req, res) {
                 fullname: user.fullname,
             },
         });
+
+        return res.status(201).json({
+            success: true,
+            message: "User registered successfully. Verification email sent.",
+        });
+
+       
     } catch (error) {
         console.error("Signup Error:", error);
         return res.status(500).json({
@@ -135,7 +162,55 @@ async function loginUser(req, res) {
     }
 }
 
+//OTP Verification
+async function verifyUser(req, res) {
+    try {
+        const { email, verifyCode } = req.body;
+
+        const user = await userModel.findOne({ email });
+        if (!user)
+            return res.status(400).json({ success: false, message: "User not found" });
+
+        if (user.isVerified)
+            return res.status(400).json({ success: false, message: "User already verified" });
+
+        if (user.verifyCode !== verifyCode)
+            return res.status(400).json({ success: false, message: "Invalid verification code" });
+
+        if (user.verifyCodeExpiry < new Date())
+            return res.status(400).json({ success: false, message: "Verification code expired" });
+
+        // Update user verification status
+        user.isVerified = true;
+        user.verifyCode = null;
+        user.verifyCodeExpiry = null;
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Email verified successfully",
+        });
+    } catch (error) {
+        console.error("Verification Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+}
+
+//Logout User
+
+async function logoutUser(req,res) {
+    res.clearCookie("token");
+    res.status(200).json({
+        message: "User Logged Out Successfully"
+    })
+}
+
 module.exports = {
     registerUser,
     loginUser,
+    verifyUser,
+    logoutUser,
 }
