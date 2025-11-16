@@ -54,7 +54,7 @@ const Login = () => {
 
             if (res.data.success) {
                 toast.success("Login successful!");
-                navigate("/dashboard");
+                navigate("/");
             }
         } catch (error) {
             const msg =
