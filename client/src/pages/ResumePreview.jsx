@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getResumeByUser } from "../api/resumeApi";
+import { getResumeById } from "../api/resumeApi";
+
 import { generateAiResume } from "../api/aiApi";
 
 const ResumePreview = () => {
@@ -16,7 +17,8 @@ const ResumePreview = () => {
 
     const fetchResume = async () => {
         try {
-            const res = await getResumeByUser(resumeId);
+            const res = await getResumeById(resumeId);
+
             setResume(res.data.resume);
         } catch (err) {
             toast.error("Unable to load resume.");
@@ -26,23 +28,32 @@ const ResumePreview = () => {
     const handleGenerate = async () => {
         try {
             setLoading(true);
+
+            // Call API: only send template, backend uses logged-in user
             const res = await generateAiResume(selectedTemplate);
 
+            // Convert response to Blob (PDF)
             const blob = new Blob([res.data], { type: "application/pdf" });
             const url = window.URL.createObjectURL(blob);
 
+            // Trigger download
             const a = document.createElement("a");
             a.href = url;
             a.download = `AI_Resume_${selectedTemplate}.pdf`;
+            document.body.appendChild(a); // ensure element is in DOM
             a.click();
+            document.body.removeChild(a); // clean up
 
             toast.success("AI Resume Generated!");
         } catch (err) {
+            console.error("AI Resume Error:", err); // log full error
             toast.error("Failed to generate AI resume");
         } finally {
             setLoading(false);
         }
     };
+
+
 
     if (!resume) return <div>Loading...</div>;
 
