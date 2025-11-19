@@ -25,7 +25,7 @@ const AppRoutes = () => {
                     <Route path="/dashboard" element={<Dashboard/>}/>
                     <Route path="/create-resume" element={<CreateResume/>}/>
                     <Route path="/generate-ai-resume/:resumeId/:template" element={<GenerateAiResume/>}/>
-                    <Route path="/resume-preview/:id" element={<ResumePreview/>}/>
+                    <Route path="/resume-preview/:resumeId" element={<ResumePreview />} />
                 </Routes>
             </Router>
         </>
