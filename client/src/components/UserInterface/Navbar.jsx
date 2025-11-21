@@ -56,10 +56,9 @@ const Navbar = () => {
         }
     };
 
-    // New handler for My Resumes button
     const handleMyResumes = () => {
-        navigate("/resume-preview/:resumeId");
-        if (open) setOpen(false); // Close mobile menu if open
+        navigate("/my_resume");
+        if (open) setOpen(false); 
     };
 
     const shadowGlow = "shadow-[0_0_50px_rgba(109,40,217,0.3),_0_0_15px_rgba(255,255,255,0.05)]";
@@ -90,7 +89,6 @@ const Navbar = () => {
 
                 <div className="hidden md:flex items-center space-x-4">
 
-                    {/* --- My Resumes Button (Visible when authenticated) --- */}
                     {authenticated && (
                         <button
                             onClick={handleMyResumes}
@@ -106,7 +104,6 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    {/* --- Logout / Sign In Button --- */}
                     {authenticated ? (
                         <button
                             onClick={handleLogout}
@@ -135,7 +132,6 @@ const Navbar = () => {
                         </Link>
                     )}
 
-                    {/* --- Get Started Button --- */}
                     <button
                         onClick={handleGetStarted}
                         className="
@@ -157,7 +153,6 @@ const Navbar = () => {
 
                 </div>
 
-                {/* --- Mobile Menu Toggle --- */}
                 <div
                     className="md:hidden text-white cursor-pointer hover:text-purple-400 transition"
                     onClick={() => setOpen(!open)}
@@ -166,7 +161,6 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* --- Mobile Menu Content --- */}
             <div
                 className={`
                     md:hidden fixed top-16 left-0 w-full z-40 
@@ -177,10 +171,8 @@ const Navbar = () => {
             >
                 <div className="flex flex-col py-4 px-6 space-y-4 text-white">
 
-                    {/* Mobile: My Resumes Link */}
                     {authenticated && (
                         <Link
-                            to="/resume-preview/:resumeId"
                             className="flex items-center gap-3 text-gray-300 hover:text-white transition text-lg py-1"
                             onClick={() => setOpen(false)}
                         >
@@ -189,7 +181,6 @@ const Navbar = () => {
                         </Link>
                     )}
 
-                    {/* Mobile: Sign In / Logout Link */}
                     {authenticated ? (
                         <button
                             onClick={handleLogout}
@@ -209,7 +200,6 @@ const Navbar = () => {
                         </Link>
                     )}
 
-                    {/* Mobile: Get Started Link */}
                     <button
                         onClick={handleGetStarted}
                         className="
