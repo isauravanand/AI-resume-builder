@@ -8,6 +8,8 @@ import CreateResume from "../pages/CreateResume";
 import GenerateAiResume from "../pages/GenerateAiResume";
 import ResumePreview from "../pages/ResumePreview";
 import Home from "../pages/Home";
+import MyResume from "../pages/MyResume";
+import EditResume from "../pages/EditResume";
 
 
 
@@ -26,6 +28,8 @@ const AppRoutes = () => {
                     <Route path="/create-resume" element={<CreateResume/>}/>
                     <Route path="/generate-ai-resume/:resumeId/:template" element={<GenerateAiResume/>}/>
                     <Route path="/resume-preview/:resumeId" element={<ResumePreview />} />
+                    <Route path="/my_resume" element={<MyResume/>}/>
+                    <Route path="/edit-resume" element={<EditResume/>}/>
                 </Routes>
             </Router>
         </>
