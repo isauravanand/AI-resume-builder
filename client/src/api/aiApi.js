@@ -1,9 +1,8 @@
-import axios from "./axios";
+import api from "./axios";
 
-export const generateAiResume = (template) => {
-    return axios.post(
+export const generateAiResume = (template, resumeData) =>
+    api.post(
         `/ai/generate-resume`,
-        { template },       // only send template
-        { responseType: "blob" } // <-- important for PDF
+        { template, resumeData },
+        { responseType: "blob" }
     );
-};
