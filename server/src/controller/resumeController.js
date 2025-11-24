@@ -144,6 +144,7 @@ async function getResumeByUser(req, res) {
 }
 
 
+
 const getUserResumes = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -151,9 +152,11 @@ const getUserResumes = async (req, res) => {
     const resumes = await Resume.find({ user: userId }).sort({ createdAt: -1 });
 
     if (!resumes || resumes.length === 0) {
-      return res.status(404).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
+        count: 0,
         message: "No resumes found for this user.",
+        resumes: [], // Explicitly send an empty array
       });
     }
 
@@ -167,8 +170,6 @@ const getUserResumes = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
-
 
 async function updateResume(req, res) {
   try {
