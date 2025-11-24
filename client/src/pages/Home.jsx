@@ -107,12 +107,12 @@ const Home = () => {
                 Create your own resume
               </button>
 
-              <button
+              {/* <button
                 onClick={() => navigate("/user/register")}
                 className="inline-flex items-center px-5 py-3 bg-white/5 text-white rounded-md font-medium shadow hover:bg-white/10 transition cursor-pointer"
               cursor-pointer>
                 Browse templates
-              </button>
+              </button> */}
             </div>
 
             <div className="mt-10 text-slate-400 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
