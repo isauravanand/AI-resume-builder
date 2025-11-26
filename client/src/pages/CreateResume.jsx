@@ -123,7 +123,7 @@ const CreateResume = () => {
     if (stepRef.current && stepRef.current.validate && stepRef.current.validate()) {
       try {
         setIsLoading(true);
-        toast.info("Saving your resume...");
+        // toast.info("Saving your resume...");
 
         const cleanedData = {
           ...formData,
