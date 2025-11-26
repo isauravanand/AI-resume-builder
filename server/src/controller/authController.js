@@ -72,6 +72,7 @@ async function registerUser(req, res) {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? 'None' : 'Lax',
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         // --- COOKIE FIX END ---
@@ -144,6 +145,7 @@ async function loginUser(req, res) {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? 'None' : 'Lax',
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         // --- COOKIE FIX END ---
@@ -213,6 +215,7 @@ async function logoutUser(req, res) {
         httpOnly: true,
         secure: isProduction,
         sameSite: isProduction ? 'None' : 'Lax',
+        path: '/',
     });
 
     res.status(200).json({
