@@ -50,8 +50,8 @@ ${JSON.stringify(resumeData, null, 2)}
 
         const templatePath = path.join(
             __dirname,
-            "..", 
-            "templates", 
+            "..",
+            "templates",
             `${template}.html`
         );
 

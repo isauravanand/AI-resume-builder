@@ -54,8 +54,6 @@ const Login = () => {
 
             if (res.data.success) {
                 toast.success("Login successful!");
-                // Dispatch event to notify Navbar to refresh auth state
-                window.dispatchEvent(new Event("authStateChanged"));
                 navigate("/");
             }
         } catch (error) {

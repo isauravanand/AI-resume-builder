@@ -51,8 +51,6 @@ const VerifyUser = () => {
 
       if (res.data.success) {
         toast.success("Email verified successfully!");
-        // Dispatch event to notify Navbar to refresh auth state
-        window.dispatchEvent(new Event("authStateChanged"));
         navigate("/");
       }
     } catch (error) {

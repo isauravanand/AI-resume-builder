@@ -87,7 +87,7 @@ async function createResume(req, res) {
     });
   }
 }
- 
+
 // async function getResumeByUser(req, res) {
 //   try {
 //     const { userId } = req.params;

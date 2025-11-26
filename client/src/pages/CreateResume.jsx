@@ -77,7 +77,7 @@ const CreateResume = () => {
   const handleArrayInputChange = (arrayName, index, field, value) => {
     setFormData((prev) => {
       const updated = [...prev[arrayName]];
-      if (field === "") { 
+      if (field === "") {
         updated[index] = value;
       } else {
         updated[index] = { ...updated[index], [field]: value };
@@ -123,7 +123,7 @@ const CreateResume = () => {
     if (stepRef.current && stepRef.current.validate && stepRef.current.validate()) {
       try {
         setIsLoading(true);
-        // toast.info("Saving your resume...");
+        toast.info("Saving your resume...");
 
         const cleanedData = {
           ...formData,
@@ -177,7 +177,7 @@ const CreateResume = () => {
       handleArrayInputChange,
       removeArrayItem,
       addArrayItem,
-      ref: stepRef, 
+      ref: stepRef,
     };
 
     switch (currentStep) {
@@ -212,8 +212,8 @@ const CreateResume = () => {
                 onClick={handlePrevious}
                 disabled={currentStep === 1}
                 className={`px-6 py-2 rounded-lg font-semibold transition ${currentStep === 1
-                    ? "bg-white/5 text-gray-500 cursor-not-allowed"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                  ? "bg-white/5 text-gray-500 cursor-not-allowed"
+                  : "bg-white/10 text-white hover:bg-white/20"
                   }`}
               >
                 Previous

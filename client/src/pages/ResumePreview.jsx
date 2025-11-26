@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import  {getResumeById  }from "../api/resumeApi";
-import{ generateAiResume}  from "../api/aiApi";
+import { getResumeById } from "../api/resumeApi";
+import { generateAiResume } from "../api/aiApi";
 import Navbar from "../components/UserInterface/Navbar";
 
 const ResumePreview = () => {
     const { resumeId } = useParams();
     const [selectedTemplate, setSelectedTemplate] = useState("executive");
     const [resume, setResume] = useState(null);
-    const [loadingType, setLoadingType] = useState(null); 
+    const [loadingType, setLoadingType] = useState(null);
 
     useEffect(() => {
         fetchResume();
@@ -53,7 +53,7 @@ const ResumePreview = () => {
         }
     };
 
-  
+
 
 
     if (!resume)
@@ -103,7 +103,7 @@ const ResumePreview = () => {
                 </div>
 
                 <h2 className="text-2xl font-semibold mb-5 text-white">
-                 Choose Design Template
+                    Choose Design Template
                 </h2>
                 <div className="flex flex-wrap gap-5 mb-10">
                     {templates.map((tpl) => (
@@ -129,7 +129,7 @@ const ResumePreview = () => {
 
                 {/* --- Generate Buttons Group --- */}
                 <h2 className="text-2xl font-semibold mb-5 text-white">
-                     Download
+                    Download
                 </h2>
                 <div className="flex flex-col md:flex-row gap-4">
 

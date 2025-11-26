@@ -11,43 +11,43 @@ const GenerateAiResume = () => {
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(true);
 
-    useEffect(() => {
-        const generateResume = async () => {
-            try {
-                if (!template) {
-                    toast.error("Template not selected");
-                    navigate("/create-resume");
-                    return;
-                }
+  useEffect(() => {
+    const generateResume = async () => {
+      try {
+        if (!template) {
+          toast.error("Template not selected");
+          navigate("/create-resume");
+          return;
+        }
 
-                const response = await generateAiResume(template);
+        const response = await generateAiResume(template);
 
-                const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-                const pdfURL = URL.createObjectURL(pdfBlob);
+        const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+        const pdfURL = URL.createObjectURL(pdfBlob);
 
-                const link = document.createElement("a");
-                link.href = pdfURL;
-                link.download = `resume-${template}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
+        const link = document.createElement("a");
+        link.href = pdfURL;
+        link.download = `resume-${template}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
 
-                URL.revokeObjectURL(pdfURL);
+        URL.revokeObjectURL(pdfURL);
 
-                toast.success("Resume generated successfully!");
-                setTimeout(() => navigate("/"), 2000);
+        toast.success("Resume generated successfully!");
+        setTimeout(() => navigate("/"), 2000);
 
-            } catch (error) {
-                console.error("AI resume generation error:", error);
-                toast.error("Failed to generate resume");
-                navigate("/create-resume");
-            } finally {
-                setIsGenerating(false);
-            }
-        };
+      } catch (error) {
+        console.error("AI resume generation error:", error);
+        toast.error("Failed to generate resume");
+        navigate("/create-resume");
+      } finally {
+        setIsGenerating(false);
+      }
+    };
 
-        generateResume();
-    }, [template]);
+    generateResume();
+  }, [template]);
 
   return (
     <>

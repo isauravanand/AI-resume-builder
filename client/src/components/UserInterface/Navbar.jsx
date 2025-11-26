@@ -1,87 +1,64 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, LogIn, Rocket, FileText } from "lucide-react";
 import { toast } from "react-toastify";
-import { getCurrentUser, logoutUser } from "../../api/authApi";
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
     const [authenticated, setAuthenticated] = useState(false);
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const navigate = useNavigate();
-    const location = useLocation();
 
-    // Check authentication status by calling backend API
-    const checkAuthStatus = async () => {
+    const isLoggedIn = () => {
         try {
-            const res = await getCurrentUser();
-            if (res.data?.success) {
-                setAuthenticated(true);
-            } else {
-                setAuthenticated(false);
+            if (typeof document !== "undefined") {
+                const cookies = document.cookie.split(";").map((c) => c.trim());
+                for (const c of cookies) if (c.startsWith("token=")) return true;
             }
-        } catch (error) {
-            // Not authenticated or error
-            setAuthenticated(false);
-        } finally {
-            setCheckingAuth(false);
-        }
+            if (typeof localStorage !== "undefined") {
+                const t = localStorage.getItem("token");
+                if (t) return true;
+            }
+        } catch (e) { }
+        return false;
     };
 
     useEffect(() => {
-        // Check auth on mount and when route changes
-        checkAuthStatus();
+        setAuthenticated(isLoggedIn());
 
-        // Listen for auth state changes from login/register
-        const handleAuthChange = () => {
-            checkAuthStatus();
-        };
-        window.addEventListener("authStateChanged", handleAuthChange);
+        function onStorage(e) {
+            if (e.key === "token") setAuthenticated(isLoggedIn());
+        }
+        window.addEventListener("storage", onStorage);
+        return () => window.removeEventListener("storage", onStorage);
+    }, []);
 
-        return () => {
-            window.removeEventListener("authStateChanged", handleAuthChange);
-        };
-    }, [location.pathname]);
-
-    const handleLogout = async () => {
+    const handleLogout = () => {
         try {
-            await logoutUser();
+            if (typeof document !== "undefined") {
+                document.cookie = "token=; Max-Age=0; path=/;";
+            }
+            if (typeof localStorage !== "undefined") localStorage.removeItem("token");
             setAuthenticated(false);
             toast.success("Logged out successfully");
             navigate("/");
         } catch (err) {
-            console.error("Logout error:", err);
-            // Even if API call fails, clear local state
-            setAuthenticated(false);
+            console.error(err);
             toast.error("Logout failed");
         }
     };
 
-    const handleGetStarted = async () => {
-        // Double-check auth status before navigating
+    const handleGetStarted = () => {
         if (authenticated) {
             navigate("/create-resume");
         } else {
-            // Try to check auth one more time
-            try {
-                const res = await getCurrentUser();
-                if (res.data?.success) {
-                    setAuthenticated(true);
-                    navigate("/create-resume");
-                } else {
-                    toast.info("Please sign up to create your resume");
-                    navigate("/user/register");
-                }
-            } catch (error) {
-                toast.info("Please sign up to create your resume");
-                navigate("/user/register");
-            }
+            toast.info("Please sign up to create your resume");
+            navigate("/user/register");
         }
     };
 
     const handleMyResumes = () => {
         navigate("/my_resume");
-        if (open) setOpen(false); 
+        if (open) setOpen(false);
     };
 
     const shadowGlow = "shadow-[0_0_50px_rgba(109,40,217,0.3),_0_0_15px_rgba(255,255,255,0.05)]";
@@ -196,7 +173,6 @@ const Navbar = () => {
 
                     {authenticated && (
                         <Link
-                            to="/my_resume"
                             className="flex items-center gap-3 text-gray-300 hover:text-white transition text-lg py-1"
                             onClick={() => setOpen(false)}
                         >

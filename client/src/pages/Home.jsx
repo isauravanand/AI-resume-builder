@@ -2,7 +2,6 @@ import React from "react";
 import Navbar from "../components/UserInterface/Navbar";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getCurrentUser } from "../api/authApi";
 import { Zap, Award, Clock, FileText, CheckCircle, Edit, Download } from "lucide-react";
 
 const Home = () => {
@@ -81,24 +80,31 @@ const Home = () => {
 
             <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <button
-                onClick={async () => {
-                  try {
-                    // Ask backend if user is authenticated using httpOnly cookie
-                    const res = await getCurrentUser();
-                    if (res.data?.success) {
-                      navigate("/create-resume");
-                      return;
-                    }
-                  } catch (e) {
-                    // Ignore error, treat as not logged in
-                  }
+                onClick={() => {
+                  const isLoggedIn = () => {
+                    try {
+                      if (typeof document !== "undefined") {
+                        const cookies = document.cookie.split(";").map((c) => c.trim());
+                        for (const c of cookies) if (c.startsWith("token=")) return true;
+                      }
+                      if (typeof localStorage !== "undefined") {
+                        const t = localStorage.getItem("token");
+                        if (t) return true;
+                      }
+                    } catch (e) { }
+                    return false;
+                  };
 
-                  toast.info("Please sign up to create your resume");
-                  navigate("/user/register");
+                  if (!isLoggedIn()) {
+                    toast.info("Please sign up to create your resume");
+                    navigate("/user/register");
+                  } else {
+                    navigate("/create-resume");
+                  }
                 }}
-                className="cursor-pointer inline-flex  items-center px-6 py-3 bg-indigo-500 to bg-indigo-600 text-white rounded-md font-semibold shadow hover:brightness-95 transition"
+                className="cursor-pointer inline-flex  items-center px-6 py-3 bg-emerald-500 text-white rounded-md font-semibold shadow hover:brightness-95 transition"
               >
-                Create your own AI resume
+                Create your own resume
               </button>
 
               {/* <button
@@ -115,7 +121,7 @@ const Home = () => {
 
             <div className="mt-16 space-y-6 max-w-2xl">
               <p className="text-sm font-semibold text-slate-300">Frequently asked questions:</p>
-              
+
               <details className="group">
                 <summary className="flex items-center justify-between cursor-pointer p-4 rounded-lg bg-white/5 hover:bg-white/10 transition">
                   <span className="text-sm font-medium text-white">How long does it take to create a resume?</span>
@@ -162,7 +168,7 @@ const Home = () => {
             {/* How It Works Section */}
             <div className="space-y-8 animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
               <h2 className="text-3xl font-bold text-white mb-8"> How it works</h2>
-              
+
               <div className="flex gap-6 group hover:scale-105 transition-transform duration-300">
                 <div className="flex flex-col items-center">
                   <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 border-2 border-emerald-500/50 group-hover:border-emerald-400 group-hover:shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-300">

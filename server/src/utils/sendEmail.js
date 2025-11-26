@@ -17,7 +17,7 @@ async function sendVerificationEmail(to, verifyCode) {
       },
       to: [{ email: to }],
       subject: "Verify your email address",
-        htmlContent: `
+      htmlContent: `
   <div style="font-family: Arial, sans-serif; background: #f9fafb; padding: 30px;">
     <div style="max-width: 480px; margin: auto; background: #ffffff; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
       
