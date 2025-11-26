@@ -58,7 +58,7 @@ const Step1Contact = React.forwardRef(({ formData, validationRules, setFormData 
                         value={formData.fullname}
                         onChange={(e) => handleBasicInputChange("fullname", e.target.value)}
                         className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="John Doe"
+                        placeholder="Your name"
                     />
                 </div>
                 <div>
@@ -68,7 +68,7 @@ const Step1Contact = React.forwardRef(({ formData, validationRules, setFormData 
                         value={formData.email}
                         onChange={(e) => handleBasicInputChange("email", e.target.value)}
                         className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="john@example.com"
+                        placeholder="you@example.com"
                     />
                 </div>
                 <div>
