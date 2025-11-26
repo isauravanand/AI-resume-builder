@@ -206,10 +206,34 @@ async function verifyUser(req, res) {
 
 //Logout User
 async function logoutUser(req, res) {
-    res.clearCookie("token");
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Clear cookie with same options as when it was set
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'None' : 'Lax',
+    });
+
     res.status(200).json({
+        success: true,
         message: "User Logged Out Successfully"
-    })
+    });
+}
+
+// Get current authenticated user based on cookie / Authorization header
+async function getCurrentUser(req, res) {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: "Not authenticated",
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        user: req.user,
+    });
 }
 
 module.exports = {
@@ -217,4 +241,5 @@ module.exports = {
     loginUser,
     verifyUser,
     logoutUser,
+    getCurrentUser,
 }
