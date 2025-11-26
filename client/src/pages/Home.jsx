@@ -102,9 +102,9 @@ const Home = () => {
                     navigate("/create-resume");
                   }
                 }}
-                className="cursor-pointer inline-flex  items-center px-6 py-3 bg-emerald-500 text-white rounded-md font-semibold shadow hover:brightness-95 transition"
+                className="cursor-pointer inline-flex  items-center px-6 py-3 bg-indigo-500 to bg-indigo-600 text-white rounded-md font-semibold shadow hover:brightness-95 transition"
               >
-                Create your own resume
+                Create your own AI resume
               </button>
 
               {/* <button
