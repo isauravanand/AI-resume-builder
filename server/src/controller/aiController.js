@@ -4,11 +4,6 @@ const puppeteer = require("puppeteer");
 const { generateWithGemini, safeExtractJSON } = require("../utils/geminiHelpers");
 const { registerHandlebarsHelpers, Handlebars } = require("../utils/templateHelpers");
 
-// Set Puppeteer cache directory for Render
-if (process.env.NODE_ENV === 'production') {
-    process.env.PUPPETEER_CACHE_DIR = process.env.PUPPETEER_CACHE_DIR || '/opt/render/.cache/puppeteer';
-}
-
 registerHandlebarsHelpers();
 
 
@@ -66,64 +61,10 @@ ${JSON.stringify(resumeData, null, 2)}
         const htmlTemplate = fs.readFileSync(templatePath, "utf8");
         const compiledHTML = Handlebars.compile(htmlTemplate)(improvedData);
 
-        // Configure Puppeteer for Render deployment
-        const launchOptions = {
+        browser = await puppeteer.launch({
             headless: "new",
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-accelerated-2d-canvas",
-                "--no-first-run",
-                "--no-zygote",
-                "--single-process",
-                "--disable-gpu",
-                "--disable-software-rasterizer",
-                "--disable-extensions",
-            ],
-        };
-
-        // Try to find Chrome in common system locations (for Render)
-        const possibleChromePaths = [
-            process.env.PUPPETEER_EXECUTABLE_PATH,
-            "/usr/bin/google-chrome-stable",
-            "/usr/bin/google-chrome",
-            "/usr/bin/chromium",
-            "/usr/bin/chromium-browser",
-            "/snap/bin/chromium",
-        ];
-
-        // Use system Chrome if available (for Render)
-        let chromeFound = false;
-        for (const chromePath of possibleChromePaths) {
-            if (chromePath && fs.existsSync(chromePath)) {
-                launchOptions.executablePath = chromePath;
-                chromeFound = true;
-                console.log(`Using Chrome at: ${chromePath}`);
-                break;
-            }
-        }
-
-        // If Chrome not found, try to use Puppeteer's bundled Chrome
-        if (!chromeFound) {
-            try {
-                // Try to get Puppeteer's executable path
-                const puppeteerExecutable = puppeteer.executablePath();
-                if (puppeteerExecutable && fs.existsSync(puppeteerExecutable)) {
-                    launchOptions.executablePath = puppeteerExecutable;
-                    chromeFound = true;
-                    console.log(`Using Puppeteer bundled Chrome at: ${puppeteerExecutable}`);
-                }
-            } catch (err) {
-                console.warn("Could not get Puppeteer executable path:", err.message);
-            }
-        }
-
-        if (!chromeFound) {
-            console.warn("Chrome executable not found. Puppeteer will attempt to download it...");
-        }
-
-        browser = await puppeteer.launch(launchOptions);
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        });
 
         const page = await browser.newPage();
         await page.setContent(compiledHTML, {
@@ -146,26 +87,8 @@ ${JSON.stringify(resumeData, null, 2)}
 
     } catch (error) {
         console.error(" Resume Generation Error:", error);
-        
-        // Provide more helpful error messages
-        if (error.message && error.message.includes("Could not find Chrome")) {
-            return res.status(500).json({ 
-                message: "Chrome browser not found. Please ensure Chrome is installed or Puppeteer cache is configured correctly.",
-                error: error.message 
-            });
-        }
-        
-        return res.status(500).json({ 
-            message: "Error generating resume",
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
+        return res.status(500).json({ message: "Error generating resume" });
     } finally {
-        if (browser) {
-            try {
-                await browser.close();
-            } catch (closeError) {
-                console.error("Error closing browser:", closeError);
-            }
-        }
+        if (browser) await browser.close();
     }
 };
