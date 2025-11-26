@@ -38,6 +38,8 @@ const Register = () => {
 
             if (res.data.success) {
                 toast.success("Verification code sent to your email.");
+                // Dispatch event to notify Navbar to refresh auth state (cookie is set during registration)
+                window.dispatchEvent(new Event("authStateChanged"));
                 navigate("/user/verifyUser", { state: { email: formData.email } });
             }
         } catch (error) {

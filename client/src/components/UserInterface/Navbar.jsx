@@ -1,58 +1,81 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogIn, Rocket, FileText } from "lucide-react";
 import { toast } from "react-toastify";
+import { getCurrentUser, logoutUser } from "../../api/authApi";
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
     const [authenticated, setAuthenticated] = useState(false);
+    const [checkingAuth, setCheckingAuth] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const isLoggedIn = () => {
+    // Check authentication status by calling backend API
+    const checkAuthStatus = async () => {
         try {
-            if (typeof document !== "undefined") {
-                const cookies = document.cookie.split(";").map((c) => c.trim());
-                for (const c of cookies) if (c.startsWith("token=")) return true;
+            const res = await getCurrentUser();
+            if (res.data?.success) {
+                setAuthenticated(true);
+            } else {
+                setAuthenticated(false);
             }
-            if (typeof localStorage !== "undefined") {
-                const t = localStorage.getItem("token");
-                if (t) return true;
-            }
-        } catch (e) { }
-        return false;
+        } catch (error) {
+            // Not authenticated or error
+            setAuthenticated(false);
+        } finally {
+            setCheckingAuth(false);
+        }
     };
 
     useEffect(() => {
-        setAuthenticated(isLoggedIn());
+        // Check auth on mount and when route changes
+        checkAuthStatus();
 
-        function onStorage(e) {
-            if (e.key === "token") setAuthenticated(isLoggedIn());
-        }
-        window.addEventListener("storage", onStorage);
-        return () => window.removeEventListener("storage", onStorage);
-    }, []);
+        // Listen for auth state changes from login/register
+        const handleAuthChange = () => {
+            checkAuthStatus();
+        };
+        window.addEventListener("authStateChanged", handleAuthChange);
 
-    const handleLogout = () => {
+        return () => {
+            window.removeEventListener("authStateChanged", handleAuthChange);
+        };
+    }, [location.pathname]);
+
+    const handleLogout = async () => {
         try {
-            if (typeof document !== "undefined") {
-                document.cookie = "token=; Max-Age=0; path=/;";
-            }
-            if (typeof localStorage !== "undefined") localStorage.removeItem("token");
+            await logoutUser();
             setAuthenticated(false);
             toast.success("Logged out successfully");
             navigate("/");
         } catch (err) {
-            console.error(err);
+            console.error("Logout error:", err);
+            // Even if API call fails, clear local state
+            setAuthenticated(false);
             toast.error("Logout failed");
         }
     };
 
-    const handleGetStarted = () => {
+    const handleGetStarted = async () => {
+        // Double-check auth status before navigating
         if (authenticated) {
             navigate("/create-resume");
         } else {
-            toast.info("Please sign up to create your resume");
-            navigate("/user/register");
+            // Try to check auth one more time
+            try {
+                const res = await getCurrentUser();
+                if (res.data?.success) {
+                    setAuthenticated(true);
+                    navigate("/create-resume");
+                } else {
+                    toast.info("Please sign up to create your resume");
+                    navigate("/user/register");
+                }
+            } catch (error) {
+                toast.info("Please sign up to create your resume");
+                navigate("/user/register");
+            }
         }
     };
 
@@ -173,6 +196,7 @@ const Navbar = () => {
 
                     {authenticated && (
                         <Link
+                            to="/my_resume"
                             className="flex items-center gap-3 text-gray-300 hover:text-white transition text-lg py-1"
                             onClick={() => setOpen(false)}
                         >
