@@ -15,7 +15,6 @@ async function registerUser(req, res) {
 
         if (!result.success) {
             console.log("Validation Error:", result.error.issues);
-
             return res.status(400).json({
                 success: false,
                 message: "Validation error",
@@ -25,7 +24,6 @@ async function registerUser(req, res) {
                 })),
             });
         }
-
 
         const { fullname, email, password } = result.data;
 
@@ -41,7 +39,7 @@ async function registerUser(req, res) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //User Email Verification Expiry Time 
+        // Verify Code logic
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
         const verifyCodeExpiry = Date.now() + 10 * 60 * 1000;
 
@@ -65,15 +63,19 @@ async function registerUser(req, res) {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
+        // --- COOKIE FIX START ---
+        const isProduction = process.env.NODE_ENV === 'production';
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
+        // --- COOKIE FIX END ---
 
-        // Send SINGLE response only
         return res.status(201).json({
             success: true,
             message: "Verification email sent. Please check your inbox.",
@@ -84,8 +86,6 @@ async function registerUser(req, res) {
             },
         });
 
-
-
     } catch (error) {
         console.error("Signup Error:", error);
         return res.status(500).json({
@@ -95,20 +95,18 @@ async function registerUser(req, res) {
     }
 }
 
-
 //Login User
 async function loginUser(req, res) {
     try {
-        // Validate request body using Zod
         const result = loginValidation.safeParse(req.body);
 
         if (!result.success) {
-            console.log("Validation Error:", error.issues);
+            console.log("Validation Error:", result.error.issues);
 
             return res.status(400).json({
                 success: false,
                 message: "Validation error",
-                errors: error.issues.map((err) => ({
+                errors: result.error.issues.map((err) => ({
                     field: err.path[0],
                     message: err.message,
                 })),
@@ -137,14 +135,20 @@ async function loginUser(req, res) {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id },
-            process.env.JWT_SECRET
-        )
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        // Set token cookie
-        res.cookie("token", token);
+        // --- COOKIE FIX START ---
+        const isProduction = process.env.NODE_ENV === 'production';
 
-        //  Send success response
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        // --- COOKIE FIX END ---
+
+        // Send success response
         return res.status(200).json({
             success: true,
             message: "Login successful",
@@ -163,7 +167,6 @@ async function loginUser(req, res) {
         });
     }
 }
-
 //OTP Verification
 async function verifyUser(req, res) {
     try {
