@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { generateAiResume } from "../api/aiApi";
 import Navbar from "../components/UserInterface/Navbar";
-import Background from "../components/UserInterface/Background";
 import Footer from "../components/UserInterface/Footer";
 
 const GenerateAiResume = () => {
