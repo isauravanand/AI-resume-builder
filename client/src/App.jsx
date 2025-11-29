@@ -9,7 +9,6 @@ function App() {
   return (
       <>
         <AppRoutes/>
-        <Footer/>
         <ToastContainer
           position="top-right"
           autoClose={5000}
