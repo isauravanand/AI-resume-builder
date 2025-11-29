@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Briefcase, FolderGit2, Award, Terminal } from 'lucide-react';
 
 const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, removeArrayItem, addArrayItem, validationRules, setFormData }, ref) => {
 
@@ -19,7 +19,7 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
 
         for (let work of formData.workExperience) {
             const hasAnyField = work.company?.trim() || work.position?.trim() || work.startDate;
-            if (hasAnyField) { 
+            if (hasAnyField) {
                 if (!validationRules.company.validate(work.company)) {
                     toast.error(`Work Exp: ${validationRules.company.error}`);
                     return false;
@@ -50,7 +50,7 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
                     toast.error(`Project: ${validationRules.projectDescription.error}`);
                     return false;
                 }
-                if (proj.link && !validationRules.linkedin.validate(proj.link)) { 
+                if (proj.link && !validationRules.linkedin.validate(proj.link)) {
                     toast.error(`Project Link: Enter a valid URL`);
                     return false;
                 }
@@ -59,13 +59,12 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
 
         for (let cert of formData.certifications) {
             const hasAnyField = cert.title?.trim() || cert.organization?.trim() || cert.issueDate?.trim() || cert.credentialUrl?.trim();
-            if (hasAnyField) { // Only validate required fields if the user started filling this entry
+            if (hasAnyField) {
                 if (!validationRules.certTitle.validate(cert.title)) {
                     toast.error(`Certification: ${validationRules.certTitle.error}`);
                     return false;
                 }
-                // Credential URL validation (only if value is present and not empty)
-                if (cert.credentialUrl && !validationRules.linkedin.validate(cert.credentialUrl)) { // Reuse general URL rule
+                if (cert.credentialUrl && !validationRules.linkedin.validate(cert.credentialUrl)) {
                     toast.error(`Certification URL: Provide a valid credential URL`);
                     return false;
                 }
@@ -79,36 +78,91 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
         validate: validate
     }));
 
-    return (
-        <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-white mb-8">Skills & Experience</h2>
-
+    // Reusable Section Header
+    const SectionHeader = ({ title, subtitle, onAdd, buttonText }) => (
+        <div className="flex justify-between items-end mb-6 border-b border-white/5 pb-4">
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Technical Skills *</h3>
-                    <button
-                        onClick={() => setFormData((prev) => ({ ...prev, technicalSkills: [...prev.technicalSkills, ""] }))}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add Skill
-                    </button>
-                </div>
+                <h3 className="text-xl font-bold text-white">{title}</h3>
+                <p className="text-zinc-400 text-sm mt-1">{subtitle}</p>
+            </div>
+            {onAdd && (
+                <button
+                    onClick={onAdd}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-white transition-all hover:border-purple-500/30"
+                >
+                    <Plus size={14} /> {buttonText}
+                </button>
+            )}
+        </div>
+    );
+
+    // Reusable Remove Button
+    const RemoveButton = ({ onClick }) => (
+        <button
+            onClick={onClick}
+            className="absolute right-4 top-4 text-zinc-600 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg"
+        >
+            <X size={16} />
+        </button>
+    );
+
+    // Reusable Input
+    const Input = ({ label, value, onChange, placeholder, type = "text" }) => (
+        <div className="space-y-1.5">
+            <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</label>
+            <input
+                type={type}
+                value={value}
+                onChange={onChange}
+                className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50 transition-all"
+                placeholder={placeholder}
+            />
+        </div>
+    );
+
+    // Reusable TextArea
+    const TextArea = ({ label, value, onChange, placeholder, height = "h-20" }) => (
+        <div className="space-y-1.5">
+            <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</label>
+            <textarea
+                value={value}
+                onChange={onChange}
+                className={`w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50 transition-all resize-none ${height}`}
+                placeholder={placeholder}
+            />
+        </div>
+    );
+
+    return (
+        <div className="space-y-12 animate-fade-up">
+
+            {/* Technical Skills */}
+            <div>
+                <SectionHeader
+                    title="Technical Skills"
+                    subtitle="Languages, frameworks, and tools you excel at."
+                    onAdd={() => setFormData((prev) => ({ ...prev, technicalSkills: [...prev.technicalSkills, ""] }))}
+                    buttonText="Add Skill"
+                />
                 <div className="grid md:grid-cols-3 gap-4">
                     {formData.technicalSkills.map((skill, idx) => (
-                        <div key={idx} className="relative">
+                        <div key={idx} className="relative group">
+                            <div className="absolute left-3 top-3 text-zinc-600 pointer-events-none">
+                                <Terminal size={16} />
+                            </div>
                             <input
                                 type="text"
                                 value={skill}
                                 onChange={(e) => handleArrayInputChange("technicalSkills", idx, "", e.target.value)}
-                                className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-                                placeholder="e.g., React"
+                                className="w-full pl-10 pr-10 py-3 bg-zinc-900/30 border border-white/5 rounded-xl text-white focus:outline-none focus:border-purple-500/50 focus:bg-zinc-900/50 transition-all"
+                                placeholder="e.g. React.js"
                             />
                             {formData.technicalSkills.length > 0 && (
                                 <button
                                     onClick={() => removeArrayItem("technicalSkills", idx)}
-                                    className="absolute right-3 top-2 text-red-500 hover:text-red-400"
+                                    className="absolute right-2 top-2 text-zinc-600 hover:text-red-400 p-1 hover:bg-white/5 rounded"
                                 >
-                                    <X size={18} />
+                                    <X size={16} />
                                 </button>
                             )}
                         </div>
@@ -116,78 +170,33 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
                 </div>
             </div>
 
+            {/* Work Experience */}
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Work Experience</h3>
-                    <button
-                        onClick={() => addArrayItem("workExperience")}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add
-                    </button>
-                </div>
+                <SectionHeader
+                    title="Work Experience"
+                    subtitle="Your past roles and achievements."
+                    onAdd={() => addArrayItem("workExperience")}
+                    buttonText="Add Experience"
+                />
                 <div className="space-y-6">
                     {formData.workExperience.map((work, idx) => (
-                        <div key={idx} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-white font-medium">Work Experience #{idx + 1}</h4>
-                                {formData.workExperience.length > 0 && (
-                                    <button
-                                        onClick={() => removeArrayItem("workExperience", idx)}
-                                        className="text-red-500 hover:text-red-400 transition"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                )}
+                        <div key={idx} className="relative p-6 bg-zinc-900/30 border border-white/5 rounded-2xl hover:border-white/10 transition-all">
+                            <RemoveButton onClick={() => removeArrayItem("workExperience", idx)} />
+
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                    <Briefcase size={20} />
+                                </div>
+                                <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Role #{idx + 1}</span>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Company * (Min 2 chars)</label>
-                                    <input
-                                        type="text"
-                                        value={work.company}
-                                        onChange={(e) => handleArrayInputChange("workExperience", idx, "company", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="Company Name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Position * (Min 2 chars)</label>
-                                    <input
-                                        type="text"
-                                        value={work.position}
-                                        onChange={(e) => handleArrayInputChange("workExperience", idx, "position", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="Job Title"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Start Date *</label>
-                                    <input
-                                        type="date"
-                                        value={work.startDate}
-                                        onChange={(e) => handleArrayInputChange("workExperience", idx, "startDate", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">End Date</label>
-                                    <input
-                                        type="date"
-                                        value={work.endDate}
-                                        onChange={(e) => handleArrayInputChange("workExperience", idx, "endDate", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                    />
-                                </div>
+
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <Input label="Company *" value={work.company} onChange={(e) => handleArrayInputChange("workExperience", idx, "company", e.target.value)} placeholder="Google" />
+                                <Input label="Position *" value={work.position} onChange={(e) => handleArrayInputChange("workExperience", idx, "position", e.target.value)} placeholder="Senior Developer" />
+                                <Input label="Start Date *" type="date" value={work.startDate} onChange={(e) => handleArrayInputChange("workExperience", idx, "startDate", e.target.value)} />
+                                <Input label="End Date" type="date" value={work.endDate} onChange={(e) => handleArrayInputChange("workExperience", idx, "endDate", e.target.value)} />
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm text-gray-300 mb-1">Description (Max 500 characters)</label>
-                                    <textarea
-                                        value={work.description}
-                                        onChange={(e) => handleArrayInputChange("workExperience", idx, "description", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition h-20"
-                                        placeholder="Describe your responsibilities..."
-                                        maxLength={500}
-                                    />
+                                    <TextArea label="Description" value={work.description} onChange={(e) => handleArrayInputChange("workExperience", idx, "description", e.target.value)} placeholder="Describe your key responsibilities and achievements..." />
                                 </div>
                             </div>
                         </div>
@@ -195,59 +204,31 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
                 </div>
             </div>
 
+            {/* Projects */}
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Projects</h3>
-                    <button
-                        onClick={() => addArrayItem("projects")}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add
-                    </button>
-                </div>
+                <SectionHeader
+                    title="Projects"
+                    subtitle="Notable projects you've worked on."
+                    onAdd={() => addArrayItem("projects")}
+                    buttonText="Add Project"
+                />
                 <div className="space-y-6">
                     {formData.projects.map((proj, idx) => (
-                        <div key={idx} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-white font-medium">Project #{idx + 1}</h4>
-                                {formData.projects.length > 0 && (
-                                    <button
-                                        onClick={() => removeArrayItem("projects", idx)}
-                                        className="text-red-500 hover:text-red-400 transition"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                )}
+                        <div key={idx} className="relative p-6 bg-zinc-900/30 border border-white/5 rounded-2xl hover:border-white/10 transition-all">
+                            <RemoveButton onClick={() => removeArrayItem("projects", idx)} />
+
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                                    <FolderGit2 size={20} />
+                                </div>
+                                <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Project #{idx + 1}</span>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Title * (Min 2 chars)</label>
-                                    <input
-                                        type="text"
-                                        value={proj.title}
-                                        onChange={(e) => handleArrayInputChange("projects", idx, "title", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="Project Name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Link</label>
-                                    <input
-                                        type="url"
-                                        value={proj.link}
-                                        onChange={(e) => handleArrayInputChange("projects", idx, "link", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="https://..."
-                                    />
-                                </div>
+
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <Input label="Project Title *" value={proj.title} onChange={(e) => handleArrayInputChange("projects", idx, "title", e.target.value)} placeholder="E-commerce App" />
+                                <Input label="Project Link" value={proj.link} onChange={(e) => handleArrayInputChange("projects", idx, "link", e.target.value)} placeholder="https://..." type="url" />
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm text-gray-300 mb-1">Description * (Min 10 chars)</label>
-                                    <textarea
-                                        value={proj.description}
-                                        onChange={(e) => handleArrayInputChange("projects", idx, "description", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition h-20"
-                                        placeholder="Describe the project..."
-                                    />
+                                    <TextArea label="Description *" value={proj.description} onChange={(e) => handleArrayInputChange("projects", idx, "description", e.target.value)} placeholder="Briefly describe the tech stack and outcome..." />
                                 </div>
                             </div>
                         </div>
@@ -255,70 +236,31 @@ const Step3Experience = React.forwardRef(({ formData, handleArrayInputChange, re
                 </div>
             </div>
 
+            {/* Certifications */}
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Certifications</h3>
-                    <button
-                        onClick={() => addArrayItem("certifications")}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add
-                    </button>
-                </div>
+                <SectionHeader
+                    title="Certifications"
+                    subtitle="Courses, certifications and awards."
+                    onAdd={() => addArrayItem("certifications")}
+                    buttonText="Add Cert"
+                />
                 <div className="space-y-6">
                     {formData.certifications.map((cert, idx) => (
-                        <div key={idx} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-white font-medium">Certification #{idx + 1}</h4>
-                                {formData.certifications.length > 0 && (
-                                    <button
-                                        onClick={() => removeArrayItem("certifications", idx)}
-                                        className="text-red-500 hover:text-red-400 transition"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                )}
+                        <div key={idx} className="relative p-6 bg-zinc-900/30 border border-white/5 rounded-2xl hover:border-white/10 transition-all">
+                            <RemoveButton onClick={() => removeArrayItem("certifications", idx)} />
+
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                                    <Award size={20} />
+                                </div>
+                                <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Certificate #{idx + 1}</span>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Title * (Min 3 chars)</label>
-                                    <input
-                                        type="text"
-                                        value={cert.title}
-                                        onChange={(e) => handleArrayInputChange("certifications", idx, "title", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="Certification Name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Organization</label>
-                                    <input
-                                        type="text"
-                                        value={cert.organization}
-                                        onChange={(e) => handleArrayInputChange("certifications", idx, "organization", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="Issuing Organization"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Issue Date</label>
-                                    <input
-                                        type="date"
-                                        value={cert.issueDate}
-                                        onChange={(e) => handleArrayInputChange("certifications", idx, "issueDate", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-300 mb-1">Credential URL</label>
-                                    <input
-                                        type="url"
-                                        value={cert.credentialUrl}
-                                        onChange={(e) => handleArrayInputChange("certifications", idx, "credentialUrl", e.target.value)}
-                                        className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500 transition"
-                                        placeholder="https://..."
-                                    />
-                                </div>
+
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <Input label="Title *" value={cert.title} onChange={(e) => handleArrayInputChange("certifications", idx, "title", e.target.value)} placeholder="AWS Certified" />
+                                <Input label="Organization" value={cert.organization} onChange={(e) => handleArrayInputChange("certifications", idx, "organization", e.target.value)} placeholder="Amazon" />
+                                <Input label="Issue Date" type="date" value={cert.issueDate} onChange={(e) => handleArrayInputChange("certifications", idx, "issueDate", e.target.value)} />
+                                <Input label="Credential URL" type="url" value={cert.credentialUrl} onChange={(e) => handleArrayInputChange("certifications", idx, "credentialUrl", e.target.value)} placeholder="https://..." />
                             </div>
                         </div>
                     ))}

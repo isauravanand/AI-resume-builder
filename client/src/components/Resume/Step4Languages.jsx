@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Globe, Heart } from 'lucide-react';
 
 const Step4Languages = React.forwardRef(({ formData, handleArrayInputChange, removeArrayItem, validationRules, setFormData }, ref) => {
 
@@ -27,75 +27,82 @@ const Step4Languages = React.forwardRef(({ formData, handleArrayInputChange, rem
         validate: validate
     }));
 
+    const SimpleInputList = ({ title, subtitle, icon: Icon, items, fieldName, placeholder, colorClass }) => (
+        <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-2xl hover:border-white/10 transition-all">
+            <div className="flex justify-between items-start mb-6">
+                <div className="flex gap-4">
+                    <div className={`p-3 rounded-xl ${colorClass} bg-opacity-10`}>
+                        <Icon size={24} className={colorClass.replace("bg-", "text-")} />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-white">{title}</h3>
+                        <p className="text-zinc-400 text-sm mt-1">{subtitle}</p>
+                    </div>
+                </div>
+                <button
+                    onClick={() => setFormData((prev) => ({ ...prev, [fieldName]: [...prev[fieldName], ""] }))}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-white transition-all hover:border-purple-500/30"
+                >
+                    <Plus size={14} /> Add
+                </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {items.map((item, idx) => (
+                    <div key={idx} className="relative group">
+                        <input
+                            type="text"
+                            value={item}
+                            onChange={(e) => handleArrayInputChange(fieldName, idx, "", e.target.value)}
+                            className="
+                                w-full pl-4 pr-10 py-3 
+                                bg-black/40 border border-white/10 rounded-xl 
+                                text-white placeholder-zinc-600 
+                                focus:outline-none focus:border-purple-500/50 focus:bg-zinc-900/50 
+                                transition-all
+                            "
+                            placeholder={placeholder}
+                        />
+                        {items.length > 1 && (
+                            <button
+                                onClick={() => removeArrayItem(fieldName, idx)}
+                                className="absolute right-2 top-2.5 text-zinc-600 hover:text-red-400 p-1 hover:bg-white/5 rounded transition-colors"
+                            >
+                                <X size={16} />
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
     return (
-        <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-white mb-8">Languages & Interests</h2>
-
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Languages</h3>
-                    <button
-                        onClick={() => setFormData((prev) => ({ ...prev, languages: [...prev.languages, ""] }))}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add Language
-                    </button>
-                </div>
-                <div className="grid md:grid-cols-3 gap-4">
-                    {formData.languages.map((lang, idx) => (
-                        <div key={idx} className="relative">
-                            <input
-                                type="text"
-                                value={lang}
-                                onChange={(e) => handleArrayInputChange("languages", idx, "", e.target.value)}
-                                className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-                                placeholder="e.g., English"
-                            />
-                            {formData.languages.length > 1 && (
-                                <button
-                                    onClick={() => removeArrayItem("languages", idx)}
-                                    className="absolute right-3 top-2 text-red-500 hover:text-red-400"
-                                >
-                                    <X size={18} />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div>
+        <div className="space-y-8 animate-fade-up">
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-white mb-2">Final Details</h2>
+                <p className="text-zinc-400 text-sm">Add languages you speak and your personal interests.</p>
             </div>
 
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">Interests</h3>
-                    <button
-                        onClick={() => setFormData((prev) => ({ ...prev, interests: [...prev.interests, ""] }))}
-                        className="flex items-center gap-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
-                    >
-                        <Plus size={16} /> Add Interest
-                    </button>
-                </div>
-                <div className="grid md:grid-cols-3 gap-4">
-                    {formData.interests.map((interest, idx) => (
-                        <div key={idx} className="relative">
-                            <input
-                                type="text"
-                                value={interest}
-                                onChange={(e) => handleArrayInputChange("interests", idx, "", e.target.value)}
-                                className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
-                                placeholder="e.g., Reading"
-                            />
-                            {formData.interests.length > 1 && (
-                                <button
-                                    onClick={() => removeArrayItem("interests", idx)}
-                                    className="absolute right-3 top-2 text-red-500 hover:text-red-400"
-                                >
-                                    <X size={18} />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <SimpleInputList
+                title="Languages"
+                subtitle="What languages are you proficient in?"
+                icon={Globe}
+                items={formData.languages}
+                fieldName="languages"
+                placeholder="e.g. English (Native)"
+                colorClass="bg-cyan-500 text-cyan-400"
+            />
+
+            <SimpleInputList
+                title="Interests"
+                subtitle="Hobbies that define your personality."
+                icon={Heart}
+                items={formData.interests}
+                fieldName="interests"
+                placeholder="e.g. Hiking, Photography"
+                colorClass="bg-pink-500 text-pink-400"
+            />
         </div>
     );
 });

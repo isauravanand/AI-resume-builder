@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import { User, Mail, Phone, Linkedin, Github, Globe } from 'lucide-react';
 
 const Step1Contact = React.forwardRef(({ formData, validationRules, setFormData }, ref) => {
 
@@ -21,12 +22,10 @@ const Step1Contact = React.forwardRef(({ formData, validationRules, setFormData 
             toast.error(validationRules.email.error);
             return false;
         }
-        // Zod Phone: regex(/^[0-9]{10}$/, "Phone number must be 10 digits")
         if (!validationRules.phone.validate(phone)) {
             toast.error(validationRules.phone.error);
             return false;
         }
-        // Zod URL check only if value is NOT empty (to pass optional/or(z.literal("")) check)
         if (linkedin && !validationRules.linkedin.validate(linkedin)) {
             toast.error(validationRules.linkedin.error);
             return false;
@@ -42,75 +41,100 @@ const Step1Contact = React.forwardRef(({ formData, validationRules, setFormData 
         return true;
     };
 
-    // Expose validation function to parent
     React.useImperativeHandle(ref, () => ({
         validate: validate
     }));
 
+    // Reusable Input Component for Consistency
+    const InputField = ({ label, icon: Icon, value, onChange, type = "text", placeholder, required }) => (
+        <div className="group">
+            <label className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-wider">
+                {label} {required && <span className="text-purple-400">*</span>}
+            </label>
+            <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Icon size={16} className="text-zinc-600 group-focus-within:text-purple-400 transition-colors" />
+                </div>
+                <input
+                    type={type}
+                    value={value}
+                    onChange={onChange}
+                    className="
+                        w-full pl-10 pr-4 py-3 
+                        bg-zinc-900/50 border border-white/10 rounded-xl 
+                        text-white placeholder-zinc-600 
+                        focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 
+                        transition-all duration-200
+                    "
+                    placeholder={placeholder}
+                />
+            </div>
+        </div>
+    );
+
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white mb-8">Contact Information</h2>
+        <div className="animate-fade-up ">
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-white mb-2 ">Contact Information</h2>
+                <p className="text-zinc-400 text-sm">How can recruiters reach you?</p>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
-                    <input
-                        type="text"
-                        value={formData.fullname}
-                        onChange={(e) => handleBasicInputChange("fullname", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="Your name"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
-                    <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleBasicInputChange("email", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="you@example.com"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Phone (10 digits) *</label>
-                    <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleBasicInputChange("phone", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="1234567890"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">LinkedIn URL</label>
-                    <input
-                        type="url"
-                        value={formData.linkedin}
-                        onChange={(e) => handleBasicInputChange("linkedin", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="https://linkedin.com/in/..."
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">GitHub URL</label>
-                    <input
-                        type="url"
-                        value={formData.github}
-                        onChange={(e) => handleBasicInputChange("github", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="https://github.com/..."
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Portfolio URL</label>
-                    <input
-                        type="url"
-                        value={formData.portfolio}
-                        onChange={(e) => handleBasicInputChange("portfolio", e.target.value)}
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition"
-                        placeholder="https://portfolio.com"
-                    />
-                </div>
+                <InputField
+                    label="Full Name"
+                    icon={User}
+                    value={formData.fullname}
+                    onChange={(e) => handleBasicInputChange("fullname", e.target.value)}
+                    placeholder="Your Full name"
+                    required
+                />
+
+                <InputField
+                    label="Email Address"
+                    icon={Mail}
+                    value={formData.email}
+                    onChange={(e) => handleBasicInputChange("email", e.target.value)}
+                    type="email"
+                    placeholder="fullname@example.com"
+                    required
+                />
+
+                <InputField
+                    label="Phone Number"
+                    icon={Phone}
+                    value={formData.phone}
+                    onChange={(e) => handleBasicInputChange("phone", e.target.value)}
+                    type="tel"
+                    placeholder="1234567890"
+                    required
+                />
+
+                <InputField
+                    label="LinkedIn Profile"
+                    icon={Linkedin}
+                    value={formData.linkedin}
+                    onChange={(e) => handleBasicInputChange("linkedin", e.target.value)}
+                    type="url"
+                    placeholder="linkedin.com/in/user..."
+                />
+
+                <InputField
+                    label="GitHub Profile"
+                    icon={Github}
+                    value={formData.github}
+                    onChange={(e) => handleBasicInputChange("github", e.target.value)}
+                    type="url"
+                    placeholder="github.com/user..."
+                />
+
+                <InputField
+                    label="Portfolio Website"
+                    icon={Globe}
+                    value={formData.portfolio}
+                    onChange={(e) => handleBasicInputChange("portfolio", e.target.value)}
+                    type="url"
+                    placeholder="yourportfolio.com"
+                />
             </div>
         </div>
     );
