@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes ,Route } from "react-router-dom";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import VerifyUser from "../pages/VerifyUser";
-import CreateResume from "../pages/CreateResume";
-import GenerateAiResume from "../pages/GenerateAiResume";
-import ResumePreview from "../pages/ResumePreview";
-import Home from "../pages/Home";
-import MyResume from "../pages/MyResume";
-import NotFound from "../pages/NotFound";
+import Login from "../pages/Auth/Login";
+import Register from "../pages/Auth/Register";
+import VerifyUser from "../pages/Auth/VerifyUser";
+import CreateResume from "../pages/Resume/CreateResume";
+import GenerateAiResume from "../pages/Resume/GenerateAiResume";
+import ResumePreview from "../pages/Resume/ResumePreview";
+import Home from "../pages/General/Home";
+import MyResume from "../pages/Resume/MyResume";
+import NotFound from "../pages/General/NotFound";
 
 
 
