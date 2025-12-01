@@ -6,7 +6,6 @@ const { registerHandlebarsHelpers, Handlebars } = require("../utils/templateHelp
 
 registerHandlebarsHelpers();
 
-
 module.exports.GenerateAiResume = async (req, res) => {
     let browser;
 
@@ -16,6 +15,7 @@ module.exports.GenerateAiResume = async (req, res) => {
         if (!resumeData)
             return res.status(400).json({ message: "No resume data received" });
 
+        // Clean up data
         delete resumeData._id;
         delete resumeData.createdAt;
         delete resumeData.updatedAt;
@@ -61,9 +61,10 @@ ${JSON.stringify(resumeData, null, 2)}
         const htmlTemplate = fs.readFileSync(templatePath, "utf8");
         const compiledHTML = Handlebars.compile(htmlTemplate)(improvedData);
 
-        browser = await puppeteer.launch({
+        // ✅ FIXED PUPPETEER LAUNCH LOGIC
+        // We prepare the options object first
+        const launchOptions = {
             headless: true,
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -72,8 +73,15 @@ ${JSON.stringify(resumeData, null, 2)}
                 '--single-process',
                 '--disable-software-rasterizer'
             ]
-        });
+        };
 
+        // ONLY set executablePath if the environment variable is actually present (Render)
+        // Locally, this will be undefined, and Puppeteer will use its bundled Chrome automatically.
+        if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+            launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+        }
+
+        browser = await puppeteer.launch(launchOptions);
 
         const page = await browser.newPage();
         await page.setContent(compiledHTML, {
@@ -95,7 +103,7 @@ ${JSON.stringify(resumeData, null, 2)}
         return res.send(pdfBuffer);
 
     } catch (error) {
-        console.error(" Resume Generation Error:", error);
+        console.error("Resume Generation Error:", error);
         return res.status(500).json({ message: "Error generating resume" });
     } finally {
         if (browser) await browser.close();
