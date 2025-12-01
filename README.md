@@ -1,6 +1,6 @@
-# 🚀 NexFolio – AI-Powered Portfolio & Resume Builder
+# 🚀 NexFolio – AI Powered Resume Builder
 
-NexFolio is a full-stack MERN application that helps users **create professional portfolios**, **generate AI-enhanced resumes**, and **verify their identity through email OTPs**.  
+NexFolio is a full-stack MERN application that helps users **generate AI-enhanced resumes**, and **verify their identity through email OTPs**.  
 It combines a modern UI, powerful backend APIs, and AI-driven PDF generation to deliver a seamless experience for developers, students, and job seekers.
 
 ---
@@ -22,10 +22,6 @@ It combines a modern UI, powerful backend APIs, and AI-driven PDF generation to 
 - Sends a verification code to user email
 - User must verify before accessing protected features
 - Beautifully designed HTML email templates
-
-### 🖥️ Portfolio Builder
-- Users can build a dynamic online portfolio
-- Supports About, Skills, Projects, Experience, Contact pages
 
 ### ☁️ Cloud-Hosted Resume PDFs
 - Automatically generated & stored for user download
