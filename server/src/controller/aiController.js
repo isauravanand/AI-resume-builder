@@ -62,9 +62,18 @@ ${JSON.stringify(resumeData, null, 2)}
         const compiledHTML = Handlebars.compile(htmlTemplate)(improvedData);
 
         browser = await puppeteer.launch({
-            headless: "new",
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            headless: true,
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--single-process',
+                '--disable-software-rasterizer'
+            ]
         });
+
 
         const page = await browser.newPage();
         await page.setContent(compiledHTML, {
