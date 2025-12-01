@@ -5,6 +5,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendVerificationEmail = require("../utils/sendEmail");
 
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,           
+    sameSite: isProduction ? "none" : "lax",
+    path: "/"
+};
+
 //Register Route
 async function registerUser(req, res) {
     try {
@@ -62,12 +72,7 @@ async function registerUser(req, res) {
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true, // Required for Render
-            sameSite: "none", // Required for Cross-Origin
-            path: "/"
-        });
+        res.cookie("token", token, cookieOptions);
 
         return res.status(201).json({
             success: true,
@@ -92,7 +97,6 @@ async function registerUser(req, res) {
 //Login User
 async function loginUser(req, res) {
     try {
-        // Validate request body using Zod
         const result = loginValidation.safeParse(req.body);
 
         if (!result.success) {
@@ -109,7 +113,6 @@ async function loginUser(req, res) {
 
         const { email, password } = result.data;
 
-        // Check if user exists
         const user = await userModel.findOne({ email }).select("+password");
 
         if (!user) {
@@ -119,7 +122,6 @@ async function loginUser(req, res) {
             });
         }
 
-        // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({
@@ -128,16 +130,9 @@ async function loginUser(req, res) {
             });
         }
 
-        // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-        // Set token cookie
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true, // Required for Render
-            sameSite: "none", // Required for Cross-Origin
-            path: "/"
-        });
+        res.cookie("token", token, cookieOptions);
 
         return res.status(200).json({
             success: true,
@@ -176,7 +171,6 @@ async function verifyUser(req, res) {
         if (user.verifyCodeExpiry < new Date())
             return res.status(400).json({ success: false, message: "Verification code expired" });
 
-        // Update user verification status
         user.isVerified = true;
         user.verifyCode = null;
         user.verifyCodeExpiry = null;
@@ -197,11 +191,7 @@ async function verifyUser(req, res) {
 
 //Logout User
 async function logoutUser(req, res) {
-    res.clearCookie("token", {
-        secure: true,
-        sameSite: "none",
-        path: "/"
-    });
+    res.clearCookie("token", cookieOptions);
 
     res.status(200).json({
         message: "User Logged Out Successfully"
