@@ -1,12 +1,9 @@
 const userModel = require("../models/users");
 const { signupValidation } = require("../validations/userValidation/signupValidation")
 const { loginValidation } = require("../validations/userValidation/loginuserValidation")
-const { verifySchema } = require("../validations/userValidation/validate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendVerificationEmail = require("../utils/sendEmail");
-
-
 
 //Register Route
 async function registerUser(req, res) {
@@ -15,7 +12,6 @@ async function registerUser(req, res) {
 
         if (!result.success) {
             console.log("Validation Error:", result.error.issues);
-
             return res.status(400).json({
                 success: false,
                 message: "Validation error",
@@ -25,7 +21,6 @@ async function registerUser(req, res) {
                 })),
             });
         }
-
 
         const { fullname, email, password } = result.data;
 
@@ -67,16 +62,13 @@ async function registerUser(req, res) {
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: true, // Required for Render
+            sameSite: "none", // Required for Cross-Origin
             path: "/"
         });
 
-
-        // Send SINGLE response only
         return res.status(201).json({
             success: true,
             message: "Verification email sent. Please check your inbox.",
@@ -86,8 +78,6 @@ async function registerUser(req, res) {
                 fullname: user.fullname,
             },
         });
-
-
 
     } catch (error) {
         console.error("Signup Error:", error);
@@ -107,11 +97,10 @@ async function loginUser(req, res) {
 
         if (!result.success) {
             console.log("Validation Error:", result.error.issues);
-
             return res.status(400).json({
                 success: false,
                 message: "Validation error",
-                errors: error.issues.map((err) => ({
+                errors: result.error.issues.map((err) => ({
                     field: err.path[0],
                     message: err.message,
                 })),
@@ -140,19 +129,16 @@ async function loginUser(req, res) {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id },
-            process.env.JWT_SECRET
-        )
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
         // Set token cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: true, // Required for Render
+            sameSite: "none", // Required for Cross-Origin
             path: "/"
         });
 
-        //  Send success response
         return res.status(200).json({
             success: true,
             message: "Login successful",
