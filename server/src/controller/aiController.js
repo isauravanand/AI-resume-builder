@@ -61,8 +61,6 @@ ${JSON.stringify(resumeData, null, 2)}
         const htmlTemplate = fs.readFileSync(templatePath, "utf8");
         const compiledHTML = Handlebars.compile(htmlTemplate)(improvedData);
 
-        // ✅ FIXED PUPPETEER LAUNCH LOGIC
-        // We prepare the options object first
         const launchOptions = {
             headless: true,
             args: [
@@ -71,17 +69,18 @@ ${JSON.stringify(resumeData, null, 2)}
                 '--disable-gpu',
                 '--disable-dev-shm-usage',
                 '--single-process',
-                '--disable-software-rasterizer'
+                '--no-zygote'
             ]
         };
 
-        // ONLY set executablePath if the environment variable is actually present (Render)
-        // Locally, this will be undefined, and Puppeteer will use its bundled Chrome automatically.
         if (process.env.PUPPETEER_EXECUTABLE_PATH) {
             launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
         }
 
+        console.log("Launching Puppeteer with options:", JSON.stringify(launchOptions)); // Debug log
+
         browser = await puppeteer.launch(launchOptions);
+
 
         const page = await browser.newPage();
         await page.setContent(compiledHTML, {
