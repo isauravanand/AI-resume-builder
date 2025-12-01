@@ -38,6 +38,12 @@ const Register = () => {
 
             if (res.data.success) {
                 toast.success("Verification code sent to your email.");
+
+
+                if (res.data.user) {
+                    localStorage.setItem("nexfolio_user", JSON.stringify(res.data.user));
+                }
+
                 navigate("/user/verifyUser", { state: { email: formData.email } });
             }
         } catch (error) {
