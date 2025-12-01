@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, LogIn, Rocket, FileText, Github } from "lucide-react";
 import { toast } from "react-toastify";
+import api from "../../api/axios"; 
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
@@ -10,42 +11,36 @@ const Navbar = () => {
 
     const GITHUB_REPO_URL = "https://github.com/isauravanand/NexFolio";
 
-    const isLoggedIn = () => {
-        try {
-            if (typeof document !== "undefined") {
-                const cookies = document.cookie.split(";").map((c) => c.trim());
-                for (const c of cookies) if (c.startsWith("token=")) return true;
-            }
-            if (typeof localStorage !== "undefined") {
-                const t = localStorage.getItem("token");
-                if (t) return true;
-            }
-        } catch (e) { }
-        return false;
+    const checkAuth = () => {
+        const user = localStorage.getItem("nexfolio_user");
+        return !!user; 
     };
 
     useEffect(() => {
-        setAuthenticated(isLoggedIn());
+        setAuthenticated(checkAuth());
 
-        function onStorage(e) {
-            if (e.key === "token") setAuthenticated(isLoggedIn());
+        function onStorage() {
+            setAuthenticated(checkAuth());
         }
         window.addEventListener("storage", onStorage);
         return () => window.removeEventListener("storage", onStorage);
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         try {
-            if (typeof document !== "undefined") {
-                document.cookie = "token=; Max-Age=0; path=/;";
-            }
-            if (typeof localStorage !== "undefined") localStorage.removeItem("token");
+            
+            await api.post("/auth/logout");
+
+            localStorage.removeItem("nexfolio_user");
             setAuthenticated(false);
+
             toast.success("Logged out successfully");
             navigate("/");
         } catch (err) {
             console.error(err);
-            toast.error("Logout failed");
+            localStorage.removeItem("nexfolio_user");
+            setAuthenticated(false);
+            navigate("/");
         }
     };
 
@@ -144,6 +139,7 @@ const Navbar = () => {
                     </div>
                 </div>
 
+                {/* Mobile Menu */}
                 <div
                     className={`
                         md:hidden absolute top-full left-0 w-full
