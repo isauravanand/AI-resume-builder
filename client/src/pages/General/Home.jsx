@@ -87,13 +87,10 @@ const Home = () => {
                   onClick={() => {
                     const isLoggedIn = () => {
                       try {
-                        if (typeof document !== "undefined") {
-                          const cookies = document.cookie.split(";").map((c) => c.trim());
-                          for (const c of cookies) if (c.startsWith("token=")) return true;
-                        }
+                        
                         if (typeof localStorage !== "undefined") {
-                          const t = localStorage.getItem("token");
-                          if (t) return true;
+                          const user = localStorage.getItem("nexfolio_user");
+                          return !!user;
                         }
                       } catch (e) { }
                       return false;
